@@ -1,4 +1,6 @@
-src
-test
-vendor
-build
+vendor/*
+build/*.listing
+build/*.labels
+build/*.nes
+
+**/*/.DS_Store

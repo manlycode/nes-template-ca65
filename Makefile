@@ -1,6 +1,8 @@
 NINTACO_ZIP = Nintaco_bin_2020-05-01.zip
 NINTACO_URL := https://nintaco.com/$(NINTACO_ZIP)
 
+.PHONY: all
+all: build/main.nes
 
 build/main.nes: main.asm
 	vendor/cc65/bin/cl65 \
@@ -16,8 +18,10 @@ build/main.nes: main.asm
 
 .PHONY: clean
 clean:
-	rm vendor/nintaco.zip
-	rm -f main.nes main.o $(LISTNAME) $(LABELSNAME) $(MAPNAME)
+	-rm vendor/nintaco.zip
+	-rm -f build/*.nes
+	-rm -f build/*.labels
+	-rm -f build/*.listing
 
 .PHONY: clean-deps
 clean-deps:
@@ -26,22 +30,38 @@ clean-deps:
 .PHONY: bootstrap
 bootstrap: vendor/cc65/bin/ca65 vendor/nintaco/Nintaco.jar
 
+main.asm: assets/background.chr assets/sprite.chr
+
 vendor:
 	-mkdir vendor
 
+# -------------------------------------------------------
+# ca65
+# -------------------------------------------------------
 vendor/cc65: vendor
 	git clone https://github.com/cc65/cc65.git vendor/cc65
 
 vendor/cc65/bin/ca65: vendor/cc65
 	pushd vendor/cc65; make; popd
 
+# -------------------------------------------------------
+# Nintaco
+# -------------------------------------------------------
 vendor/nintaco.zip: vendor
 	curl -L $(NINTACO_URL) -o $@
 
 vendor/nintaco: vendor
-	mkdir $@
+	-mkdir $@
 
 vendor/nintaco/Nintaco.jar: vendor/nintaco vendor/nintaco.zip
 	unzip -o vendor/nintaco.zip -d $<
 
-main.asm: assets/background.chr assets/sprite.chr
+# -------------------------------------------------------
+# Tests
+# -------------------------------------------------------
+vendor/6502_test_executor: vendor
+	git clone https://github.com/89erik/6502_test_executor.git vendor
+
+vendor/6502_test_executor/6502_tester: vendor/6502_test_executor
+	pushd @<; make; popd
+
