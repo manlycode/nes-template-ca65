@@ -2,10 +2,22 @@ NINTACO_ZIP = Nintaco_bin_2020-05-01.zip
 NINTACO_URL := https://nintaco.com/$(NINTACO_ZIP)
 
 
+build/main.nes: main.asm
+	vendor/cc65/bin/cl65 \
+		-o build/main.nes\
+		--asm-include-dir vendor/cc65/asminc \
+		--asm-include-dir vendor/cc65/libsrc \
+		-L vendor/cc65/lib \
+		-Ln build/main.labels \
+		--listing build/main.listing \
+		-t nes\
+		-C nes.cfg \
+		main.asm
 
 .PHONY: clean
 clean:
 	rm vendor/nintaco.zip
+	rm -f main.nes main.o $(LISTNAME) $(LABELSNAME) $(MAPNAME)
 
 .PHONY: clean-deps
 clean-deps:
@@ -15,7 +27,7 @@ clean-deps:
 bootstrap: vendor/cc65/bin/ca65 vendor/nintaco/Nintaco.jar
 
 vendor:
-	mkdir vendor
+	-mkdir vendor
 
 vendor/cc65: vendor
 	git clone https://github.com/cc65/cc65.git vendor/cc65
@@ -29,5 +41,7 @@ vendor/nintaco.zip: vendor
 vendor/nintaco: vendor
 	mkdir $@
 
-vendor/nintaco/Nintaco.jar: vendor/nintaco.zip vendor/nintaco
-	unzip -o $< -d $@
+vendor/nintaco/Nintaco.jar: vendor/nintaco vendor/nintaco.zip
+	unzip -o vendor/nintaco.zip -d $<
+
+main.asm: assets/background.chr assets/sprite.chr
