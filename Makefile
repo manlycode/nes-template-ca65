@@ -26,14 +26,12 @@ clean:
 .PHONY: clean-deps
 clean-deps:
 	-rm -rf vendor/*
+	-touch vendor/.gitkeep
 
 .PHONY: bootstrap
-bootstrap: vendor/cc65/bin/ca65 vendor/nintaco/Nintaco.jar
+bootstrap: vendor/cc65/bin/ca65 vendor/nintaco/Nintaco.jar vendor/6502_test_executor/6502_tester
 
 main.asm: assets/background.chr assets/sprite.chr
-
-vendor:
-	-mkdir vendor
 
 # -------------------------------------------------------
 # ca65
@@ -59,9 +57,8 @@ vendor/nintaco/Nintaco.jar: vendor/nintaco vendor/nintaco.zip
 # -------------------------------------------------------
 # Tests
 # -------------------------------------------------------
-vendor/6502_test_executor: vendor
-	git clone https://github.com/89erik/6502_test_executor.git vendor
+vendor/6502_test_executor:
+	git clone https://github.com/89erik/6502_test_executor.git $@
 
 vendor/6502_test_executor/6502_tester: vendor/6502_test_executor
-	pushd @<; make; popd
-
+	pushd $<; make; popd
