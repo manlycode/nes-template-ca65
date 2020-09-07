@@ -47,7 +47,7 @@
 ;
 ; iNES header
 ;
-
+.DEBUGINFO
 .segment "HEADER"
 
 INES_MAPPER = 0 ; 0 = NROM

@@ -1,0 +1,3 @@
+set A 23
+start Bonks
+assert A 23
