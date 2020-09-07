@@ -1,0 +1,15 @@
+language: ruby
+
+cache:
+  directories:
+  - vendor
+
+branches:
+  only:
+  - master
+
+before_install:
+  - make bootstrap
+
+install:
+  - make build/main.nes
