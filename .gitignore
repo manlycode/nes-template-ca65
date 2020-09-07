@@ -1,6 +1,4 @@
+build/*
+!build/.gitkeep
 vendor/*
-build/*.listing
-build/*.labels
-build/*.nes
-
-**/*/.DS_Store
+!vendor/.gitkeep
