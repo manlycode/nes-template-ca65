@@ -2,10 +2,11 @@ NINTACO_ZIP = Nintaco_bin_2020-05-01.zip
 NINTACO_URL := https://nintaco.com/$(NINTACO_ZIP)
 
 .PHONY: all
-all: build/main.nes
+all: build/main.nes build/test-suite.nes
 
 build/main.nes: main.asm
 	vendor/cc65/bin/cl65 \
+		-g \
 		-o build/main.nes\
 		--asm-include-dir vendor/cc65/asminc \
 		--asm-include-dir vendor/cc65/libsrc \
@@ -16,11 +17,25 @@ build/main.nes: main.asm
 		-C nes.cfg \
 		main.asm
 
+build/test-suite.nes: test-suite.asm
+	vendor/cc65/bin/cl65 \
+		-g \
+		-o build/test-suite.nes\
+		--asm-include-dir vendor/cc65/asminc \
+		--asm-include-dir vendor/cc65/libsrc \
+		-L vendor/cc65/lib \
+		-Ln build/test-suite.labels \
+		--listing build/test-suite.listing \
+		-t nes\
+		-C nes.cfg \
+		test-suite.asm
+
 .PHONY: clean
 clean:
 	-rm vendor/nintaco.zip
 	-rm -f build/*.nes
 	-rm -f build/*.labels
+	-rm -f build/*.bu
 	-rm -f build/*.listing
 
 .PHONY: clean-deps
@@ -62,3 +77,10 @@ vendor/6502_test_executor:
 
 vendor/6502_test_executor/6502_tester: vendor/6502_test_executor
 	pushd $<; make; popd
+
+.PHONY: test
+test: build/test-suite.nes vendor/6502_test_executor/6502_tester build/test-suite.labels
+	vendor/6502_test_executor/execute_tests.sh $< ../../build/test-suite.labels test
+
+# build/test-suite.labels.fixed: build/test-suite.labels test-suite.asm
+# 	sed -i.bu 's/al 00/al C:/g' $<
